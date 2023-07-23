@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    networks:
+      - fa-analytics-network
+    ports:
+      - "9432:5432"
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+    tty: true
+    stdin_open: true
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .env:/etc/secrets/fathom.env:delegated
+    ports:
+      - 8080:8080
+    networks:
+      - fa-analytics-network
+    depends_on:
+      - db
+    restart: always
+    tty: true
+    stdin_open: true
+
+networks:
+  fa-analytics-network:
+    driver: bridge
